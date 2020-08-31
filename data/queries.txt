@@ -1,19 +1,27 @@
 LOAD EMPLOYEE
+
 ExE <- CROSS EMPLOYEE EMPLOYEE
 RENAME EMPLOYEE1_Ssn TO Ssn FROM ExE
 RENAME EMPLOYEE1_Super_ssn TO Super_ssn FROM ExE
 RENAME EMPLOYEE1_Dno TO Dno FROM ExE
 RENAME EMPLOYEE2_Dno TO Super_dno FROM ExE
 RENAME EMPLOYEE2_Ssn TO s_ssn FROM ExE
+RENAME EMPLOYEE2_Bdate TO Super_bdate FROM ExE
+RENAME EMPLOYEE1_Bdate TO E_bdate FROM ExE
+RENAME EMPLOYEE1_Sex TO 1_Sex FROM ExE
+RENAME EMPLOYEE2_Sex TO 2_Sex FROM ExE
+
 sel_supers <- SELECT Super_ssn == s_ssn FROM ExE
 supers <- PROJECT Ssn, Dno, Super_ssn, Super_dno FROM sel_supers
 Q1 <- SELECT Dno != Super_dno FROM supers
 
 LOAD PROJECT
 LOAD WORKS_ON
+
 ExP <- CROSS EMPLOYEE PROJECT
 ExPxW <- CROSS ExP WORKS_ON
 RENAME Dnum TO P_dno FROM ExPxW
+
 sel_W <- SELECT Essn == Ssn FROM ExPxW
 sel_P <- SELECT Pnumber == Pno FROM sel_W
 sel_D <- SELECT Dno == P_dno FROM sel_P
@@ -22,15 +30,10 @@ Q2 <- PROJECT Ssn, Dno, Pno, P_dno FROM sel_D
 sel_nD <- SELECT Dno != P_dno FROM sel_P
 Q3 <- PROJECT Ssn, Dno, Pno, P_dno FROM sel_nD
 
-RENAME Ssn TO Essn FROM ExE
-RENAME EMPLOYEE2_Bdate TO Super_bdate FROM ExE
-RENAME EMPLOYEE1_Bdate TO E_bdate FROM ExE
-sel_super <- SELECT Super_ssn == s_ssn FROM ExE
-young_supers <- SELECT Super_bdate > E_bdate FROM sel_super
+young_supers <- SELECT Super_bdate > E_bdate FROM sel_supers
+RENAME Ssn TO Essn FROM young_supers
 Q4 <- PROJECT Super_ssn, Super_bdate, Essn, E_bdate FROM young_supers
 
-RENAME EMPLOYEE1_Sex TO 1_Sex FROM ExE
-RENAME EMPLOYEE2_Sex TO 2_Sex FROM ExE
 sel_dno <- SELECT Dno == Super_dno FROM ExE
 sel_sex <- SELECT 1_Sex != 2_Sex FROM sel_dno
 Q5 <- PROJECT Dno FROM sel_sex
@@ -40,4 +43,5 @@ EXPORT Q2
 EXPORT Q3
 EXPORT Q4
 EXPORT Q5
-QUIT
+
+!QUIT
