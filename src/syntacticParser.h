@@ -13,6 +13,7 @@ enum QueryType
     JOIN,
     LIST,
     LOAD,
+    LOADMAT,
     TRANSPOSE,
     PRINT,
     PROJECTION,

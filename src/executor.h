@@ -10,6 +10,7 @@ void executeINDEX();
 void executeJOIN();
 void executeLIST();
 void executeLOAD();
+void executeLOADMAT();
 void executeTRANSPOSE();
 void executePRINT();
 void executePROJECTION();
