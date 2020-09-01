@@ -1,8 +1,8 @@
 #include "global.h"
 
 /**
- * @brief 
- * SYNTAX: EXPORT <relation_name> 
+ * @brief
+ * SYNTAX: EXPORT <relation_name>
  */
 
 bool syntacticParseEXPORT()
@@ -22,16 +22,25 @@ bool semanticParseEXPORT()
 {
     logger.log("semanticParseEXPORT");
     //Table should exist
-    if (tableCatalogue.isTable(parsedQuery.exportRelationName))
-        return true;
-    cout << "SEMANTIC ERROR: No such relation exists" << endl;
+    if (tableCatalogue.isTable(parsedQuery.exportRelationName)
+        || matrixCatalogue.isMatrix(parsedQuery.exportRelationName))
+            return true;
+    cout << "SEMANTIC ERROR: No such relation or matrix exists" << endl;
     return false;
 }
 
 void executeEXPORT()
 {
     logger.log("executeEXPORT");
-    Table* table = tableCatalogue.getTable(parsedQuery.exportRelationName);
-    table->makePermanent();
+    if (tableCatalogue.isTable(parsedQuery.exportRelationName))
+    {
+        Table* table = tableCatalogue.getTable(parsedQuery.exportRelationName);
+        table->makePermanent();
+    }
+    else if (matrixCatalogue.isMatrix(parsedQuery.exportRelationName))
+    {
+        Matrix* matrix = matrixCatalogue.getMatrix(parsedQuery.exportRelationName);
+        matrix->makePermanent();
+    }
     return;
 }

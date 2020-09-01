@@ -38,7 +38,7 @@ public:
 //     bool isColumn(string columnName);
 //     void renameColumn(string fromColumnName, string toColumnName);
 //     void print();
-//     void makePermanent();
+    void makePermanent();
 //     bool isPermanent();
 //     void getNextPage(Cursor *cursor);
 //     Cursor getCursor();

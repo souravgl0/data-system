@@ -142,16 +142,13 @@ vector<vector<int>> transposeData(vector<vector<int>> data)
 }
 void Matrix::transpose()
 {
-    // cout<<"here"<<endl;
     logger.log("Matrix::transpose");
-    cout<<this->bigDim<<endl;
     for(int i=0; i< this->bigDim ; i++)
     {
         for(int j=i; j<this->bigDim; j++)
         {
             int pageAInd = i*this->bigDim + j;
             int pageBInd = j*this->bigDim + i;
-            cout<<pageAInd<<" ; "<<pageBInd<<endl;
             if(pageAInd == pageBInd)
             {
                 Cursor cursor(this->matrixName, pageAInd);
@@ -185,23 +182,35 @@ void Matrix::transpose()
  * folder.
  *
  */
-// void Matrix::makePermanent()
-// {
-//     logger.log("Table::makePermanent");
-//     if(!this->isPermanent())
-//         bufferManager.deleteFile(this->sourceFileName);
-//     string newSourceFile = "../data/" + this->tableName + ".csv";
-//     ofstream fout(newSourceFile, ios::out);
-//
-//     //print headings
-//     this->writeRow(this->columns, fout);
-//
-//     Cursor cursor(this->tableName, 0);
-//     vector<int> row;
-//     for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
-//     {
-//         row = cursor.getNext();
-//         this->writeRow(row, fout);
-//     }
-//     fout.close();
-// }
+void Matrix::makePermanent()
+{
+    logger.log("Matrix::makePermanent");
+    // if(!this->isPermanent())
+        // bufferManager.deleteFile(this->sourceFileName);
+    string newSourceFile = "../data/" + this->matrixName + ".csv";
+    ofstream fout(newSourceFile, ios::out);
+    int srowInd=0;
+    for(int i = 0; i < this->bigDim; i++)
+    {
+        int pagePrefix = i*this->bigDim;
+        for(int si = 0; si < this->dimsPerBlock[pagePrefix].first; si++)
+        {
+            bool frst=true;
+            for(int j = 0; j < this->bigDim; j++)
+            {
+                int pageInd = pagePrefix + j;
+                Cursor cursor(this->matrixName, pageInd);
+                vector<vector<int>> data = cursor.getWholePage();
+                for(auto val:data[si])
+                {
+                    if(!frst)fout<<",";
+                    if(frst)frst=false;
+                    fout<<val;
+                }
+            }
+            fout<<endl;
+        }
+    }
+
+    fout.close();
+}
