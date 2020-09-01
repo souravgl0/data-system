@@ -11,6 +11,7 @@ bool semanticParse(){
         case JOIN: return semanticParseJOIN();
         case LIST: return semanticParseLIST();
         case LOAD: return semanticParseLOAD();
+        case TRANSPOSE: return semanticParseTRANSPOSE();
         case PRINT: return semanticParsePRINT();
         case PROJECTION: return semanticParsePROJECTION();
         case RENAME: return semanticParseRENAME();

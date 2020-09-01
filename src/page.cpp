@@ -31,18 +31,29 @@ Page::Page(string tableName, int pageIndex)
     this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
-    Table table = *tableCatalogue.getTable(tableName);
-    this->columnCount = table.columnCount;
-    uint maxRowCount = table.maxRowsPerBlock;
-    vector<int> row(columnCount, 0);
-    this->rows.assign(maxRowCount, row);
+    if(tableCatalogue.isTable(tableName))
+    {
+        Table table = *tableCatalogue.getTable(tableName);
+        this->columnCount = table.columnCount;
+        uint maxRowCount = table.maxRowsPerBlock;
+        this->rowCount = table.rowsPerBlockCount[pageIndex];
+        vector<int> row(columnCount, 0);
+        this->rows.assign(maxRowCount, row);
+    }
+    else if(matrixCatalogue.isMatrix(tableName))
+    {
+        Matrix matrix = *matrixCatalogue.getMatrix(tableName);
+        this->rowCount = matrix.dimsPerBlock[pageIndex].first;
+        this->columnCount = matrix.dimsPerBlock[pageIndex].second;
+        vector<int> row(columnCount, 0);
+        this->rows.assign(rowCount, row);
+    }
 
     ifstream fin(pageName, ios::in);
-    this->rowCount = table.rowsPerBlockCount[pageIndex];
     int number;
     for (uint rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
     {
-        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++)
+        for (int columnCounter = 0; columnCounter < this->columnCount; columnCounter++)
         {
             fin >> number;
             this->rows[rowCounter][columnCounter] = number;

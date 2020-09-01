@@ -62,6 +62,7 @@ bool Matrix::extractMetadata(string firstLine)
     this->smallDim = (uint)sqrt((BLOCK_SIZE * 1000) / (32));
     this->bigDim = (uint)(this->matrixDim+this->smallDim-1)/this->smallDim;
 
+    this->dimsPerBlock.assign(this->bigDim*this->bigDim, make_pair(0,0));
     return true;
 }
 
@@ -95,7 +96,7 @@ bool Matrix::blockify()
             if(scolInd == this->smallDim)
             {
                 bufferManager.appendPage(this->matrixName, pageInd, row,srowInd+1);
-
+                this->dimsPerBlock[pageInd] = make_pair(srowInd+1,scolInd);
                 scolInd=0;
                 pageInd++;
             }
@@ -103,6 +104,7 @@ bool Matrix::blockify()
         if(scolInd)
         {
             bufferManager.appendPage(this->matrixName, pageInd, vector<int>(row.begin(),row.begin()+scolInd),srowInd+1);
+            this->dimsPerBlock[pageInd] = make_pair(srowInd+1,scolInd);
         }
         srowInd++;
         if(srowInd == this->smallDim)
@@ -112,9 +114,74 @@ bool Matrix::blockify()
         }
     }
 
-    // cout<<bufferManager.getPage(this->matrixName,1)->rowCount<<endl;
     return true;
 }
+
+vector<vector<int>> transposeData(vector<vector<int>> data)
+{
+    vector<vector<int>> result;
+    int n = data.size();
+    int m = data[0].size();
+    vector<int> row(n, 0);
+    result.assign(m, row);
+
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            result[j][i] = data[i][j];
+    return result;
+}
+void Matrix::transpose()
+{
+    // cout<<"here"<<endl;
+    logger.log("Matrix::transpose");
+    cout<<this->bigDim<<endl;
+    for(int i=0; i< this->bigDim ; i++)
+    {
+        for(int j=i; j<this->bigDim; j++)
+        {
+            int pageAInd = i*this->bigDim + j;
+            int pageBInd = j*this->bigDim + i;
+            cout<<pageAInd<<" ; "<<pageBInd<<endl;
+            if(pageAInd == pageBInd)
+            {
+                Cursor cursor(this->matrixName, pageAInd);
+                vector<vector<int>> data = cursor.getWholePage();
+
+                // transpose the data matrix
+                vector<vector<int>> result = transposeData(data);
+                bufferManager.writePage(this->matrixName, pageAInd, result, result.size());
+            }
+            else
+            {
+                Cursor cursor(this->matrixName, pageAInd);
+                vector<vector<int>> dataA = cursor.getWholePage();
+
+                cursor = Cursor(this->matrixName, pageBInd);
+                vector<vector<int>> dataB = cursor.getWholePage();
+
+                // transpose the data matrix
+                vector<vector<int>> resultB = transposeData(dataA);
+                vector<vector<int>> resultA = transposeData(dataB);
+
+                bufferManager.writePage(this->matrixName, pageAInd, resultA, resultA.size());
+                bufferManager.writePage(this->matrixName, pageBInd, resultB, resultB.size());
+            }
+        }
+    }
+
+    //print headings
+    // this->writeRow(this->columns, fout);
+    //
+    // Cursor cursor(this->tableName, 0);
+    // vector<int> row;
+    // for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
+    // {
+    //     row = cursor.getNext();
+    //     this->writeRow(row, fout);
+    // }
+    // fout.close();
+}
+
 //
 // /**
 //  * @brief Given a row of values, this function will update the statistics it

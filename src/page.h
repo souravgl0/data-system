@@ -17,11 +17,12 @@ class Page{
 
     string tableName;
     string pageIndex;
-    int columnCount=0;
-    int rowCount=0;
     vector<vector<int>> rows;
     vector<int> row_toappend;
+
     public:
+        int columnCount=0;
+        int rowCount=0;
 
     string pageName = "";
     Page();

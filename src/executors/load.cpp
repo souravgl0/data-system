@@ -38,7 +38,10 @@ void executeLOAD()
     logger.log("executeLOAD");
 
     Matrix *matrix = new Matrix(parsedQuery.loadRelationName);
-    matrix->load();
+    if(matrix->load())
+    {
+        matrixCatalogue.insertMatrix(matrix);
+    }
     return;
     Table *table = new Table(parsedQuery.loadRelationName);
     if (table->load())

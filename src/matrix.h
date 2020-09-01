@@ -14,15 +14,15 @@ class Matrix
 public:
     string sourceFileName = "";
     string matrixName = "";
-    vector<string> columns;
-//     vector<uint> distinctValuesPerColumnCount;
+    // vector<string> columns;
+    // vector<uint> distinctValuesPerColumnCount;
     uint matrixDim = 0;
     uint smallDim = 0;
     uint bigDim = 0;
 //     long long int rowCount = 0;
 //     uint blockCount = 0;
 //     uint maxRowsPerBlock = 0;
-//     vector<uint> rowsPerBlockCount;
+    vector<pair<int,int>> dimsPerBlock;
 //     bool indexed = false;
 //     string indexedColumn = "";
 //     IndexingStrategy indexingStrategy = NOTHING;
@@ -34,6 +34,7 @@ public:
     Matrix(string tableName);
 //     Table(string tableName, vector<string> columns);
     bool load();
+    void transpose();
 //     bool isColumn(string columnName);
 //     void renameColumn(string fromColumnName, string toColumnName);
 //     void print();

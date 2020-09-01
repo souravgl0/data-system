@@ -13,6 +13,7 @@ enum QueryType
     JOIN,
     LIST,
     LOAD,
+    TRANSPOSE,
     PRINT,
     PROJECTION,
     RENAME,
@@ -115,6 +116,7 @@ bool syntacticParseINDEX();
 bool syntacticParseJOIN();
 bool syntacticParseLIST();
 bool syntacticParseLOAD();
+bool syntacticParseTRANSPOSE();
 bool syntacticParsePRINT();
 bool syntacticParsePROJECTION();
 bool syntacticParseRENAME();

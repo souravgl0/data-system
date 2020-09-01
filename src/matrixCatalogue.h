@@ -9,14 +9,14 @@
 class MatrixCatalogue
 {
 
-//     unordered_map<string, Table*> tables;
+    unordered_map<string, Matrix*> matrices;
 //
-// public:
-//     TableCatalogue() {}
-//     void insertTable(Table* table);
-//     void deleteTable(string tableName);
-//     Table* getTable(string tableName);
-//     bool isTable(string tableName);
+public:
+    MatrixCatalogue() {}
+    void insertMatrix(Matrix* Matrix);
+    // void deleteTable(string tableName);
+    Matrix* getMatrix(string matrixName);
+    bool isMatrix(string matrixName);
 //     bool isColumnFromTable(string columnName, string tableName);
 //     void print();
 //     ~TableCatalogue();

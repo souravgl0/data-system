@@ -14,7 +14,7 @@ Cursor::Cursor(string tableName, int pageIndex)
  * current row read from the page is indicated by the pagePointer(points to row
  * in page the cursor is pointing to).
  *
- * @return vector<int> 
+ * @return vector<int>
  */
 vector<int> Cursor::getNext()
 {
@@ -30,11 +30,32 @@ vector<int> Cursor::getNext()
     }
     return result;
 }
+
+vector<vector<int>> Cursor::getWholePage()
+{
+    logger.log("Cursor::getWholePage");
+
+    vector<int> row(this->page.columnCount, 0);
+    vector<vector<int>> rows;
+    rows.assign(this->page.rowCount, row);
+
+    for(int i = 0; i<this->page.rowCount ; i++)
+    {
+        vector<int> result = this->page.getRow(this->pagePointer);
+        this->pagePointer++;
+        for(int j=0;j<this->page.columnCount; j++)
+        {
+            rows[i][j] = result[j];
+        }
+    }
+
+    return rows;
+}
 /**
  * @brief Function that loads Page indicated by pageIndex. Now the cursor starts
  * reading from the new page.
  *
- * @param pageIndex 
+ * @param pageIndex
  */
 void Cursor::nextPage(int pageIndex)
 {
