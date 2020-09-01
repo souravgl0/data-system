@@ -1,6 +1,9 @@
+#ifndef LOGGER_H
+#define LOGGER_H
+
 #include<iostream>
 #include<bits/stdc++.h>
-#include<sys/stat.h> 
+#include<sys/stat.h>
 #include<fstream>
 
 using namespace std;
@@ -9,7 +12,7 @@ class Logger{
 
     string logFile = "log";
     ofstream fout;
-    
+
     public:
 
     Logger();
@@ -17,3 +20,5 @@ class Logger{
 };
 
 extern Logger logger;
+
+#endif

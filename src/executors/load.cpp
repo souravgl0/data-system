@@ -1,6 +1,6 @@
 #include "global.h"
 /**
- * @brief 
+ * @brief
  * SYNTAX: LOAD relation_name
  */
 bool syntacticParseLOAD()
@@ -37,6 +37,9 @@ void executeLOAD()
 {
     logger.log("executeLOAD");
 
+    Matrix *matrix = new Matrix(parsedQuery.loadRelationName);
+    matrix->load();
+    return;
     Table *table = new Table(parsedQuery.loadRelationName);
     if (table->load())
     {

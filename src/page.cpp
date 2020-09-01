@@ -22,8 +22,8 @@ Page::Page()
  * loads the rows (or tuples) into a vector of rows (where each row is a vector
  * of integers).
  *
- * @param tableName 
- * @param pageIndex 
+ * @param tableName
+ * @param pageIndex
  */
 Page::Page(string tableName, int pageIndex)
 {
@@ -53,9 +53,9 @@ Page::Page(string tableName, int pageIndex)
 
 /**
  * @brief Get row from page indexed by rowIndex
- * 
- * @param rowIndex 
- * @return vector<int> 
+ *
+ * @param rowIndex
+ * @return vector<int>
  */
 vector<int> Page::getRow(int rowIndex)
 {
@@ -78,9 +78,19 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
     this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(pageIndex);
 }
 
+Page::Page(string tableName, int pageIndex, vector<int> row, int rowCount)
+{
+    logger.log("Page::Page");
+    this->tableName = tableName;
+    this->pageIndex = pageIndex;
+    this->row_toappend = row;
+    this->rowCount = rowCount;
+    this->columnCount = row.size();
+    this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(pageIndex);
+}
 /**
  * @brief writes current page contents to file.
- * 
+ *
  */
 void Page::writePage()
 {
@@ -96,5 +106,20 @@ void Page::writePage()
         }
         fout << endl;
     }
+    fout.close();
+}
+
+void Page::appendPage()
+{
+    logger.log("Page::appendPage");
+    ofstream fout(this->pageName, ios::app);
+    bool first=true;
+    for(auto it = this->row_toappend.begin();it!=row_toappend.end();it++)
+    {
+        if(!first)fout<<" ";
+        if(first)first=false;
+        fout << *it;
+    }
+    fout<< endl;
     fout.close();
 }
