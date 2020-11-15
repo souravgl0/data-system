@@ -23,6 +23,7 @@ enum QueryType
     SOURCE,
     UNDETERMINED,
     INSERT,
+    BULK_INSERT,
     DELETE
 };
 
@@ -102,6 +103,7 @@ public:
     int selectionIntLiteral = 0;
 
     string insertTableName = "";
+    string insertedTableName = "";
     vector<int> insertValuesList;
 
     string deleteTableName = "";
@@ -135,6 +137,7 @@ bool syntacticParseSELECTION();
 bool syntacticParseSORT();
 bool syntacticParseSOURCE();
 bool syntacticParseINSERT();
+bool syntacticParseBULK_INSERT();
 bool syntacticParseDELETE();
 
 bool isFileExists(string tableName);
