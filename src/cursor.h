@@ -20,6 +20,8 @@ class Cursor{
     vector<int> getNext();
     void nextPage(int pageIndex);
     vector<vector<int>> getWholePage();
+    vector<int> getNextLinked();
+    void nextLinkedPage();
 
 };
 

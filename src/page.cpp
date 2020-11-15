@@ -11,6 +11,7 @@ Page::Page()
     this->rowCount = 0;
     this->columnCount = 0;
     this->rows.clear();
+    this->nextPointer = -1;
 }
 
 /**
@@ -59,6 +60,17 @@ Page::Page(string tableName, int pageIndex)
             this->rows[rowCounter][columnCounter] = number;
         }
     }
+    char marker;
+    fin>>marker;
+    if(marker=='>')
+    {
+        fin>>number;
+        this->nextPointer=number;
+    }
+    else
+    {
+        this->nextPointer = -1;
+    }
     fin.close();
 }
 
@@ -78,7 +90,12 @@ vector<int> Page::getRow(int rowIndex)
     return this->rows[rowIndex];
 }
 
-Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount)
+int Page::getNextPointer()
+{
+    return this->nextPointer;
+}
+
+Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int nextPointer)
 {
     logger.log("Page::Page");
     this->tableName = tableName;
@@ -86,6 +103,7 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
     this->rows = rows;
     this->rowCount = rowCount;
     this->columnCount = rows[0].size();
+    this->nextPointer = nextPointer;
     this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(pageIndex);
 }
 
@@ -117,6 +135,8 @@ void Page::writePage()
         }
         fout << endl;
     }
+    fout<<">  ";
+    fout<<this->nextPointer<<endl;
     fout.close();
 }
 

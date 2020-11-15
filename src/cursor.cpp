@@ -64,3 +64,30 @@ void Cursor::nextPage(int pageIndex)
     this->pageIndex = pageIndex;
     this->pagePointer = 0;
 }
+
+void Cursor::nextLinkedPage()
+{
+    logger.log("Cursor::nextLinkedPage");
+    int nextPage = (this->page).getNextPointer();
+    if(nextPage!=-1)
+    {
+        this->page = bufferManager.getPage(this->tableName, nextPage);
+    }
+    this->pageIndex = nextPage;
+    this->pagePointer = 0;
+}
+
+vector<int> Cursor::getNextLinked()
+{
+    logger.log("Cursor::geNextLinked");
+    vector<int> result = this->page.getRow(this->pagePointer);
+    this->pagePointer++;
+    if(result.empty()){
+        this->nextLinkedPage();
+        if(this->pageIndex != -1){
+            result = this->page.getRow(this->pagePointer);
+            this->pagePointer++;
+        }
+    }
+    return result;
+}

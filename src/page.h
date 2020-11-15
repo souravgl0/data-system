@@ -19,6 +19,7 @@ class Page{
     string pageIndex;
     vector<vector<int>> rows;
     vector<int> row_toappend;
+    int nextPointer;
 
     public:
         int columnCount=0;
@@ -27,9 +28,10 @@ class Page{
     string pageName = "";
     Page();
     Page(string tableName, int pageIndex);
-    Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount);
+    Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int nextPointer = -1);
     Page(string tableName, int pageIndex, vector<int> row, int rowCount);
     vector<int> getRow(int rowIndex);
+    int getNextPointer();
     void writePage();
     void appendPage();
 };
