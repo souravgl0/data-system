@@ -1,6 +1,6 @@
 #include "global.h"
 /**
- * @brief 
+ * @brief
  * SYNTAX: INDEX ON column_name FROM relation_name USING indexing_strategy
  * indexing_strategy: ASC | DESC | NOTHING
  */
@@ -54,5 +54,7 @@ bool semanticParseINDEX()
 void executeINDEX()
 {
     logger.log("executeINDEX");
+    Table* table = tableCatalogue.getTable(parsedQuery.indexRelationName);
+    table->buildIndex(parsedQuery.indexingStrategy,parsedQuery.indexColumnName);
     return;
 }

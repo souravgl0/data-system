@@ -19,9 +19,9 @@ class Page{
     string pageIndex;
     vector<vector<int>> rows;
     vector<int> row_toappend;
-    int nextPointer;
 
     public:
+        int nextPointer;
         int columnCount=0;
         int rowCount=0;
 

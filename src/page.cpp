@@ -102,7 +102,10 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
     this->pageIndex = pageIndex;
     this->rows = rows;
     this->rowCount = rowCount;
-    this->columnCount = rows[0].size();
+    if(rows.size()>0)
+        this->columnCount = rows[0].size();
+    else
+        this->columnCount = 0;
     this->nextPointer = nextPointer;
     this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(pageIndex);
 }

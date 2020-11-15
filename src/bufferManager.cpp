@@ -57,6 +57,20 @@ Page BufferManager::getFromPool(string pageName)
             return page;
 }
 
+void BufferManager::removeFromPool(string tableName, int pageIndex)
+{
+    logger.log("BufferManager::removeFromPool");
+    string pageName = "../data/temp/"+tableName + "_Page" + to_string(pageIndex);
+
+    for (auto it = (this->pages).begin() ; it != (this->pages).end(); it++)
+    {
+        if (pageName == (*it).pageName)
+        {
+            (this->pages).erase(it);
+            break;
+        }
+    }
+}
 /**
  * @brief Inserts page indicated by tableName and pageIndex into pool. If the
  * pool is full, the pool ejects the oldest inserted page from the pool and adds
@@ -124,4 +138,14 @@ void BufferManager::deleteFile(string tableName, int pageIndex)
     logger.log("BufferManager::deleteFile");
     string fileName = "../data/temp/"+tableName + "_Page" + to_string(pageIndex);
     this->deleteFile(fileName);
+}
+
+void BufferManager::renameFile(string tableName, int pageIndexOrig, int pageIndexNew)
+{
+    logger.log("BufferManager::renameFile");
+    string oldName = "../data/temp/"+tableName + "_Page" + to_string(pageIndexOrig);
+    string newName = "../data/temp/"+tableName + "_Page" + to_string(pageIndexNew);
+    if (rename(oldName.c_str(), newName.c_str()))
+        logger.log("BufferManager::renameFile: Err");
+        else logger.log("BufferManager::renameFile: Success");
 }

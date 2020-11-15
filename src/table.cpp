@@ -335,3 +335,106 @@ int Table::getColumnIndex(string columnName)
             return columnCounter;
     }
 }
+
+void Table::buildIndex(IndexingStrategy indexingStrategy, string indexColumnName)
+{
+    if(indexingStrategy == HASH){
+        if(! this->buildHashIndex(indexColumnName)){
+            cout<<"Error in building Index";
+            return;
+        }
+    }
+    if(indexingStrategy != NOTHING)this->indexed = true;
+    this->indexingStrategy = indexingStrategy;
+    this->indexedColumn = indexColumnName;
+    cout<<"Index Built Successfully"<<endl;
+}
+
+bool Table::buildHashIndex(string indexColumnName)
+{
+    this->hashIndex  = new LinearHash(4);
+
+    // Copy current pages to another temporary location
+    // For building index, the records will be reordered
+    // in new blocks then these temporary pages will be deleted.
+    int tempPageIndex = 3*rowCount;
+
+    this->rowsPerBlockCount.resize(this->blockCount+tempPageIndex);
+    for (int pageIndex = 0; pageIndex < this->blockCount; pageIndex++)
+    {
+        bufferManager.renameFile(this->tableName, pageIndex, pageIndex + tempPageIndex);
+        bufferManager.removeFromPool(this->tableName,pageIndex);
+        this->rowsPerBlockCount[pageIndex + tempPageIndex] = this->rowsPerBlockCount[pageIndex];
+        this->rowsPerBlockCount[pageIndex] = 0;
+    }
+    this->blockCount = tempPageIndex + this->blockCount;
+
+    // Creating new blocks clustered according to the index attribute
+    int columnIndex = this->getColumnIndex(indexColumnName);
+    Cursor cursor(this->tableName, tempPageIndex);
+    vector<int> row;
+    int nextPageIndex = 0;
+    for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
+    {
+        row = cursor.getNext();
+        int key = row[columnIndex];
+
+        int insertedPageIndex = hashIndex->insert(key,nextPageIndex);
+        writeInLinkedPages(row,insertedPageIndex, nextPageIndex);
+        if(insertedPageIndex == nextPageIndex)nextPageIndex++;
+    }
+
+    // Remove copied blocks
+    // Also remove from Pool
+    for (int pageIndex = 0; pageIndex < this->blockCount; pageIndex++)
+    {
+        bufferManager.removeFromPool(this->tableName,pageIndex + tempPageIndex);
+        bufferManager.deleteFile(this->tableName,pageIndex + tempPageIndex);
+    }
+    this->rowsPerBlockCount.resize(nextPageIndex);
+    this->blockCount = nextPageIndex;
+    return true;
+}
+
+void Table::writeInLinkedPages(vector<int> row, int insertedPageIndex, int& nextPageIndex)
+{
+    if(insertedPageIndex != nextPageIndex)
+    {
+        Cursor cursor(this->tableName,insertedPageIndex);
+        while(cursor.page.rowCount == this->maxRowsPerBlock)
+        {
+            cursor.nextLinkedPage();
+        }
+        vector<vector<int>>rows = cursor.getWholePage();
+        int curRowCount = cursor.page.rowCount;
+        rows.push_back(row);
+        curRowCount++;
+        int nextPagePointer = -1;
+        if(curRowCount==this->maxRowsPerBlock)
+        {
+            nextPagePointer = nextPageIndex;
+            Page page(this->tableName,nextPageIndex,vector<vector<int>>(),0,-1);
+            page.writePage();
+            nextPageIndex++;
+        }
+        Page page(this->tableName,cursor.pageIndex,rows,curRowCount,nextPagePointer);
+        page.writePage();
+        bufferManager.removeFromPool(this->tableName,cursor.pageIndex);
+        this->rowsPerBlockCount[cursor.pageIndex]=curRowCount;
+    }
+    else
+    {
+        int curRowCount = 1;
+        Page page(this->tableName,nextPageIndex,vector<vector<int>>({row}),1,-1);
+        this->rowsPerBlockCount[nextPageIndex]=1;
+        if(curRowCount == this->maxRowsPerBlock){
+            page.nextPointer = nextPageIndex;
+
+            Page page2(this->tableName,nextPageIndex,vector<vector<int>>(),0,-1);
+            page2.writePage();
+
+            nextPageIndex++;
+        }
+        page.writePage();
+    }
+}
