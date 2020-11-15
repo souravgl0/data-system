@@ -641,3 +641,17 @@ void Table::deleteRowUsingIndex(vector<int> row)
         }
     }
 }
+
+void Table::deleteIndex()
+{
+    if(this->indexingStrategy == BTREE)
+    {
+        delete this->btree;
+    }
+    else if(this->indexingStrategy == HASH)
+    {
+        delete this->hashIndex;
+    }
+    this->indexingStrategy = NOTHING;
+    this->indexed = false;
+}

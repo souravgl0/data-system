@@ -57,6 +57,7 @@ public:
     void buildIndex(IndexingStrategy indexingStrategy, string indexColumnName);
     bool buildHashIndex(string indexColumnName);
     bool buildTreeIndex(string indexColumnName);
+    void deleteIndex();
     void executeSelectQuery();
     set<int> getQuerySet(int columnIndex);
     void insertRowUsingIndex(vector<int> row);

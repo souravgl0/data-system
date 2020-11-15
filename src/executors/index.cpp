@@ -7,7 +7,8 @@
 bool syntacticParseINDEX()
 {
     logger.log("syntacticParseINDEX");
-    if (tokenizedQuery.size() != 9 || tokenizedQuery[1] != "ON" || tokenizedQuery[3] != "FROM" || tokenizedQuery[5] != "USING")
+    if ( (tokenizedQuery.size() != 7 && tokenizedQuery.size() != 9) ||
+        tokenizedQuery[1] != "ON" || tokenizedQuery[3] != "FROM" || tokenizedQuery[5] != "USING")
     {
         cout << "SYNTAX ERROR" << endl;
         return false;
@@ -63,7 +64,7 @@ bool semanticParseINDEX()
         return false;
     }
     Table* table = tableCatalogue.getTable(parsedQuery.indexRelationName);
-    if(table->indexed){
+    if(table->indexed && parsedQuery.indexingStrategy != NOTHING){
         cout << "SEMANTIC ERROR: Table already indexed" << endl;
         return false;
     }
@@ -74,6 +75,7 @@ void executeINDEX()
 {
     logger.log("executeINDEX");
     Table* table = tableCatalogue.getTable(parsedQuery.indexRelationName);
-    table->buildIndex(parsedQuery.indexingStrategy,parsedQuery.indexColumnName);
+    if(parsedQuery.indexingStrategy == NOTHING)table->deleteIndex();
+    else table->buildIndex(parsedQuery.indexingStrategy,parsedQuery.indexColumnName);
     return;
 }
