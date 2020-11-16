@@ -157,6 +157,7 @@ void Matrix::transpose()
                 // transpose the data matrix
                 vector<vector<int>> result = transposeData(data);
                 bufferManager.writePage(this->matrixName, pageAInd, result, result.size());
+                bufferManager.removeFromPool(this->matrixName, pageAInd);
             }
             else
             {
@@ -172,6 +173,8 @@ void Matrix::transpose()
 
                 bufferManager.writePage(this->matrixName, pageAInd, resultA, resultA.size());
                 bufferManager.writePage(this->matrixName, pageBInd, resultB, resultB.size());
+                bufferManager.removeFromPool(this->matrixName, pageAInd);
+                bufferManager.removeFromPool(this->matrixName, pageBInd);
             }
         }
     }
