@@ -431,6 +431,7 @@ void Table::writeInLinkedPages(vector<int> row, int insertedPageIndex, int& next
         int curRowCount = 1;
         Page page(this->tableName,nextPageIndex,vector<vector<int>>({row}),1,-1);
         this->rowsPerBlockCount[nextPageIndex]=1;
+        nextPageIndex++;
         if(curRowCount == this->maxRowsPerBlock){
             page.nextPointer = nextPageIndex;
 
@@ -522,5 +523,16 @@ set<int> Table::getQuerySet(int columnIndex)
 
 void Table::insertRowUsingIndex(vector<int> row)
 {
-    
+    this->rowsPerBlockCount.resize(this->blockCount+1);
+    int columnIndex = this->getColumnIndex(this->indexedColumn);
+    int nextPageIndex = this->blockCount;
+    int key = row[columnIndex];
+    int insertedPageIndex;
+    if(indexingStrategy == HASH){
+        insertedPageIndex = hashIndex->insert(key,nextPageIndex);
+    }
+    writeInLinkedPages(row,insertedPageIndex, nextPageIndex);
+    if(nextPageIndex>this->blockCount)this->blockCount=nextPageIndex;
+    this->rowCount++;
+    this->distinctValuesInIndexedColumn.insert(key);
 }
