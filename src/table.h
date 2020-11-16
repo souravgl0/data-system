@@ -1,5 +1,5 @@
 #include "cursor.h"
-#include "linearhash.h"
+#include "helper.h"
 
 enum IndexingStrategy
 {
@@ -35,6 +35,7 @@ public:
     string indexedColumn = "";
     IndexingStrategy indexingStrategy = NOTHING;
     LinearHash* hashIndex;
+    Btree* btree;
     set<int> distinctValuesInIndexedColumn;
 
     bool extractColumnNames(string firstLine);
@@ -55,6 +56,7 @@ public:
     void unload();
     void buildIndex(IndexingStrategy indexingStrategy, string indexColumnName);
     bool buildHashIndex(string indexColumnName);
+    bool buildTreeIndex(string indexColumnName);
     void executeSelectQuery();
     set<int> getQuerySet(int columnIndex);
     void insertRowUsingIndex(vector<int> row);

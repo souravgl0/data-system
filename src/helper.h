@@ -1,3 +1,14 @@
+class Btree
+{
+    int fanout;
+    map<int, int> tree;
+public:
+
+    Btree(int fanout);
+    int insert(int val, int nextPageIndex);
+    int find(int val);
+};
+
 
 class LinearHash
 {

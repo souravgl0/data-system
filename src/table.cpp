@@ -345,6 +345,12 @@ void Table::buildIndex(IndexingStrategy indexingStrategy, string indexColumnName
             return;
         }
     }
+    else if(indexingStrategy == BTREE){
+        if(! this->buildTreeIndex(indexColumnName)){
+            cout<<"Error in building Index";
+            return;
+        }
+    }
     if(indexingStrategy != NOTHING)this->indexed = true;
     this->indexingStrategy = indexingStrategy;
     this->indexedColumn = indexColumnName;
@@ -354,7 +360,8 @@ void Table::buildIndex(IndexingStrategy indexingStrategy, string indexColumnName
 bool Table::buildHashIndex(string indexColumnName)
 {
     logger.log("Table::buildHashIndex");
-    this->hashIndex  = new LinearHash(4);
+    int buckets = parsedQuery.hashBuckets;
+    this->hashIndex  = new LinearHash(buckets);
 
     // Copy current pages to another temporary location
     // For building index, the records will be reordered
@@ -382,6 +389,55 @@ bool Table::buildHashIndex(string indexColumnName)
         int key = row[columnIndex];
 
         int insertedPageIndex = hashIndex->insert(key,nextPageIndex);
+        writeInLinkedPages(row,insertedPageIndex, nextPageIndex);
+        if(insertedPageIndex == nextPageIndex)nextPageIndex++;
+        this->distinctValuesInIndexedColumn.insert(key);
+    }
+
+    // Remove copied blocks
+    // Also remove from Pool
+    for (int pageIndex = 0; pageIndex < this->blockCount; pageIndex++)
+    {
+        bufferManager.removeFromPool(this->tableName,pageIndex + tempPageIndex);
+        bufferManager.deleteFile(this->tableName,pageIndex + tempPageIndex);
+    }
+    this->rowsPerBlockCount.resize(nextPageIndex);
+    this->blockCount = nextPageIndex;
+    return true;
+}
+
+bool Table::buildTreeIndex(string indexColumnName)
+{
+    logger.log("Table::buildTreeIndex");
+    int fanout = parsedQuery.btreeFanout;
+    this->btree  = new Btree(fanout);
+
+    // Copy current pages to another temporary location
+    // For building index, the records will be reordered
+    // in new blocks then these temporary pages will be deleted.
+    int tempPageIndex = 3*rowCount;
+
+    this->rowsPerBlockCount.resize(this->blockCount+tempPageIndex);
+    for (int pageIndex = 0; pageIndex < this->blockCount; pageIndex++)
+    {
+        bufferManager.renameFile(this->tableName, pageIndex, pageIndex + tempPageIndex);
+        bufferManager.removeFromPool(this->tableName,pageIndex);
+        this->rowsPerBlockCount[pageIndex + tempPageIndex] = this->rowsPerBlockCount[pageIndex];
+        this->rowsPerBlockCount[pageIndex] = 0;
+    }
+    this->blockCount = tempPageIndex + this->blockCount;
+
+    // Creating new blocks clustered according to the index attribute
+    int columnIndex = this->getColumnIndex(indexColumnName);
+    Cursor cursor(this->tableName, tempPageIndex);
+    vector<int> row;
+    int nextPageIndex = 0;
+    for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
+    {
+        row = cursor.getNext();
+        int key = row[columnIndex];
+
+        int insertedPageIndex = btree->insert(key,nextPageIndex);
         writeInLinkedPages(row,insertedPageIndex, nextPageIndex);
         if(insertedPageIndex == nextPageIndex)nextPageIndex++;
         this->distinctValuesInIndexedColumn.insert(key);
@@ -461,7 +517,7 @@ void Table::executeSelectQuery()
         }
         else if (this->indexingStrategy == BTREE)
         {
-
+            pageIndex = btree->find(resultantVal);
         }
         if(pageIndex != -1)
         {
@@ -532,6 +588,9 @@ void Table::insertRowUsingIndex(vector<int> row)
     if(indexingStrategy == HASH){
         insertedPageIndex = hashIndex->insert(key,nextPageIndex);
     }
+    else if(indexingStrategy == BTREE){
+        insertedPageIndex = btree->insert(key,nextPageIndex);
+    }
     writeInLinkedPages(row,insertedPageIndex, nextPageIndex);
     if(nextPageIndex>this->blockCount)this->blockCount=nextPageIndex;
     this->rowCount++;
@@ -545,6 +604,9 @@ void Table::deleteRowUsingIndex(vector<int> row)
     int deletePageIndex;
     if(indexingStrategy == HASH){
         deletePageIndex = hashIndex->find(key);
+    }
+    else if(indexingStrategy == BTREE){
+        deletePageIndex = btree->find(key);
     }
     if(deletePageIndex != -1)
     {
