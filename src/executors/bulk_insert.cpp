@@ -7,12 +7,13 @@ bool syntacticParseBULK_INSERT()
     logger.log("syntacticParseBULK_INSERT");
     if (tokenizedQuery.size() != 4 || tokenizedQuery[2] != "INTO")
     {
-        cout << "SYNTAX ERROR " << endl;
+        cout << "SYNTAX ERROR" << endl;
         return false;
     }
     parsedQuery.queryType = BULK_INSERT;
     parsedQuery.insertTableName = tokenizedQuery[3];
     parsedQuery.insertedTableName = tokenizedQuery[1];
+    return true;
 }
 
 bool semanticParseBULK_INSERT()
@@ -33,12 +34,14 @@ bool semanticParseBULK_INSERT()
     
     Table* table = tableCatalogue.getTable(parsedQuery.insertTableName);
     int columnCount = table->columnCount;
-    Table* table1 = new Table(parsedQuery.insertedTableName);
+    parsedQuery.loadRelationName = parsedQuery.insertedTableName;
+    executeLOAD();
+    Table* table1 = tableCatalogue.getTable(parsedQuery.insertedTableName);
     int columnCount1 = table1->columnCount;
     
     if(columnCount != columnCount1)
     {
-        cout << "SEMANTIC ERROR: Number of columns in file is not Equal to number of columns in relation" << endl;
+	cout << "SEMANTIC ERROR: Number of columns in file is not Equal to number of columns in relation" << endl;
         return false;
     }
     return true;
