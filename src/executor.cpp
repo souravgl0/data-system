@@ -20,6 +20,7 @@ void executeCommand(){
         case SORT: executeSORT(); break;
         case SOURCE: executeSOURCE(); break;
         case INSERT: executeINSERT(); break;
+	case BULK_INSERT: executeBULK_INSERT(); break;
         default: cout<<"PARSING ERROR"<<endl;
     }
 

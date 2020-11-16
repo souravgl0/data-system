@@ -7,7 +7,7 @@ bool syntacticParseINSERT()
     logger.log("syntacticParseINSERT");
     if (tokenizedQuery.size() < 5 || tokenizedQuery[3] != "VALUES" || tokenizedQuery[1] != "INTO")
     {
-        cout << "SYNTAC ERROR " << endl;
+        cout << "SYNTAX ERROR " << endl;
         return false;
     }
     parsedQuery.queryType = INSERT;
@@ -21,12 +21,11 @@ bool syntacticParseINSERT()
         }
     }
     catch(std::invalid_argument& e){
-        cout << "SYNTAC ERROR " << endl;
+        cout << "SYNTAX ERROR " << endl;
         return false;
     }
     catch(const std::exception& e){
-        cout << "SYNTAC ERROR UNDERFINED" << endl;
-
+        cout << "SYNTAX ERROR UNDERFINED" << endl;
         return false;
     }
     return true;
@@ -34,7 +33,7 @@ bool syntacticParseINSERT()
 
 bool semanticParseINSERT()
 {
-    logger.log("semnticParseINSERT");
+    logger.log("semanticParseINSERT");
 
     if (! tableCatalogue.isTable(parsedQuery.insertTableName))
     {

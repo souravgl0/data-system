@@ -31,6 +31,8 @@ bool syntacticParse()
         return syntacticParseSOURCE();
     else if(possibleQueryType == "INSERT")
         return syntacticParseINSERT();
+    else if(possibleQueryType == "BULK_INSERT")
+	return syntacticParseINSERT();
     else
     {
         string resultantRelationName = possibleQueryType;
@@ -113,6 +115,7 @@ void ParsedQuery::clear()
     this->selectionIntLiteral = 0;
 
     this->insertTableName = "";
+    this->insertedTableName = "";
     this->insertValuesList.clear();
 
     this->sortingStrategy = NO_SORT_CLAUSE;
