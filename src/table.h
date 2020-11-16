@@ -54,6 +54,7 @@ public:
     void unload();
     void buildIndex(IndexingStrategy indexingStrategy, string indexColumnName);
     bool buildHashIndex(string indexColumnName);
+    void executeSelectQuery();
 
     /**
  * @brief Static function that takes a vector of valued and prints them out in a

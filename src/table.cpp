@@ -338,6 +338,7 @@ int Table::getColumnIndex(string columnName)
 
 void Table::buildIndex(IndexingStrategy indexingStrategy, string indexColumnName)
 {
+    logger.log("Table::buildIndex");
     if(indexingStrategy == HASH){
         if(! this->buildHashIndex(indexColumnName)){
             cout<<"Error in building Index";
@@ -352,6 +353,7 @@ void Table::buildIndex(IndexingStrategy indexingStrategy, string indexColumnName
 
 bool Table::buildHashIndex(string indexColumnName)
 {
+    logger.log("Table::buildHashIndex");
     this->hashIndex  = new LinearHash(4);
 
     // Copy current pages to another temporary location
@@ -398,6 +400,7 @@ bool Table::buildHashIndex(string indexColumnName)
 
 void Table::writeInLinkedPages(vector<int> row, int insertedPageIndex, int& nextPageIndex)
 {
+    logger.log("Table::writeInLinkedPages");
     if(insertedPageIndex != nextPageIndex)
     {
         Cursor cursor(this->tableName,insertedPageIndex);
@@ -436,5 +439,44 @@ void Table::writeInLinkedPages(vector<int> row, int insertedPageIndex, int& next
             nextPageIndex++;
         }
         page.writePage();
+    }
+}
+
+void Table::executeSelectQuery()
+{
+    logger.log("Table::executeSelectQuery");
+    int columnIndex = this->getColumnIndex(parsedQuery.selectionFirstColumnName);
+    Table* resultantTable = new Table(parsedQuery.selectionResultRelationName, this->columns);
+
+    if(parsedQuery.selectionBinaryOperator == EQUAL)
+    {
+        int resultantVal = parsedQuery.selectionIntLiteral;
+        int pageIndex;
+        if(this->indexingStrategy == HASH)
+        {
+            pageIndex = hashIndex->find(resultantVal);
+        }
+        else if (this->indexingStrategy == BTREE)
+        {
+
+        }
+        if(pageIndex != -1)
+        {
+            vector<int> row;
+            Cursor cursor(this->tableName,pageIndex);
+            row = cursor.getNextLinked();
+            while(!row.empty())
+            {
+                resultantTable->writeRow<int>(row);
+                row = cursor.getNextLinked();
+            }
+        }
+    }
+    cout<<"here"<<endl;
+    if(resultantTable->blockify())
+        tableCatalogue.insertTable(resultantTable);
+    else{
+        cout<<"Empty Table"<<endl;
+        delete resultantTable;
     }
 }

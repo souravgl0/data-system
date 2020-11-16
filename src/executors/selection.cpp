@@ -1,6 +1,6 @@
 #include "global.h"
 /**
- * @brief 
+ * @brief
  * SYNTAX: R <- SELECT column_name bin_op [column_name | int_literal] FROM relation_name
  */
 bool syntacticParseSELECTION()
@@ -108,6 +108,16 @@ void executeSELECTION()
     logger.log("executeSELECTION");
 
     Table table = *tableCatalogue.getTable(parsedQuery.selectionRelationName);
+    if(table.indexed)
+    {
+        if(parsedQuery.selectionFirstColumnName == table.indexedColumn
+            && parsedQuery.selectType == INT_LITERAL)
+            {
+                table.executeSelectQuery();
+                return;
+            }
+    }
+
     Table* resultantTable = new Table(parsedQuery.selectionResultRelationName, table.columns);
     Cursor cursor = table.getCursor();
     vector<int> row = cursor.getNext();
