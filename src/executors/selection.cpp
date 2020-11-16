@@ -111,7 +111,7 @@ void executeSELECTION()
     if(table.indexed)
     {
         if(parsedQuery.selectionFirstColumnName == table.indexedColumn
-            && parsedQuery.selectType == INT_LITERAL)
+            && parsedQuery.selectType == INT_LITERAL && parsedQuery.selectionBinaryOperator != NOT_EQUAL)
             {
                 table.executeSelectQuery();
                 return;
@@ -142,6 +142,7 @@ void executeSELECTION()
         tableCatalogue.insertTable(resultantTable);
     else{
         cout<<"Empty Table"<<endl;
+        bufferManager.deleteFile(resultantTable->sourceFileName);
         delete resultantTable;
     }
     return;

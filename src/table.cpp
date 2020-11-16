@@ -384,6 +384,7 @@ bool Table::buildHashIndex(string indexColumnName)
         int insertedPageIndex = hashIndex->insert(key,nextPageIndex);
         writeInLinkedPages(row,insertedPageIndex, nextPageIndex);
         if(insertedPageIndex == nextPageIndex)nextPageIndex++;
+        this->distinctValuesInIndexedColumn.insert(key);
     }
 
     // Remove copied blocks
@@ -448,9 +449,9 @@ void Table::executeSelectQuery()
     int columnIndex = this->getColumnIndex(parsedQuery.selectionFirstColumnName);
     Table* resultantTable = new Table(parsedQuery.selectionResultRelationName, this->columns);
 
-    if(parsedQuery.selectionBinaryOperator == EQUAL)
+    set<int> querySet = this->getQuerySet(columnIndex);
+    for(int resultantVal:querySet)
     {
-        int resultantVal = parsedQuery.selectionIntLiteral;
         int pageIndex;
         if(this->indexingStrategy == HASH)
         {
@@ -472,11 +473,49 @@ void Table::executeSelectQuery()
             }
         }
     }
-    cout<<"here"<<endl;
     if(resultantTable->blockify())
         tableCatalogue.insertTable(resultantTable);
     else{
         cout<<"Empty Table"<<endl;
         delete resultantTable;
+    }
+}
+
+set<int> Table::getQuerySet(int columnIndex)
+{
+    BinaryOperator queryOperator = parsedQuery.selectionBinaryOperator;
+    int val = parsedQuery.selectionIntLiteral;
+    set<int> res;
+    set<int> valueSet = this->distinctValuesInIndexedColumn;
+    if(queryOperator == EQUAL)
+    {
+        auto it = valueSet.find(val);
+        if(it != valueSet.end())
+        {
+            res.insert(val);
+            return res;
+        }
+    }
+    else if(queryOperator == LEQ || queryOperator == LESS_THAN)
+    {
+        auto it = valueSet.upper_bound(val);
+        it--;
+        for(;it != valueSet.begin(); it--)
+        {
+            res.insert(*it);
+        }
+        res.insert(*it);
+        if(queryOperator == LESS_THAN)res.erase(val);
+        return res;
+    }
+    else if(queryOperator == GEQ || queryOperator == GREATER_THAN)
+    {
+        auto it = valueSet.lower_bound(val);
+        for(;it != valueSet.end(); it++)
+        {
+            res.insert(*it);
+        }
+        if(queryOperator == GREATER_THAN)res.erase(val);
+        return res;
     }
 }

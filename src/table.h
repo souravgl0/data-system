@@ -35,6 +35,7 @@ public:
     string indexedColumn = "";
     IndexingStrategy indexingStrategy = NOTHING;
     LinearHash* hashIndex;
+    set<int> distinctValuesInIndexedColumn;
 
     bool extractColumnNames(string firstLine);
     bool blockify();
@@ -55,6 +56,7 @@ public:
     void buildIndex(IndexingStrategy indexingStrategy, string indexColumnName);
     bool buildHashIndex(string indexColumnName);
     void executeSelectQuery();
+    set<int> getQuerySet(int columnIndex);
 
     /**
  * @brief Static function that takes a vector of valued and prints them out in a
