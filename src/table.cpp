@@ -536,3 +536,8 @@ void Table::insertRowUsingIndex(vector<int> row)
     this->rowCount++;
     this->distinctValuesInIndexedColumn.insert(key);
 }
+
+void Table::deleteRowUsingIndex(vector<int> row)
+{
+
+}

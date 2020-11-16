@@ -57,9 +57,37 @@ void executeDELETE()
 {
     logger.log("executeDELETE");
     Table* table = tableCatalogue.getTable(parsedQuery.deleteTableName);
-    // if(table->indexed)
-    // {
-    //     table->deleteRowUsingIndex(parsedQuery.deleteValuesList);
-    //     return;
-    // }
+    if(table->indexed)
+    {
+        table->deleteRowUsingIndex(parsedQuery.deleteValuesList);
+        return;
+    }
+    Cursor cursor(table->tableName,0);
+    for(int curPage=0;curPage<table->blockCount;curPage++)
+    {
+        cursor.nextPage(curPage);
+        vector<vector<int>> rows = cursor.getWholePage();
+        auto it = rows.begin();
+        bool deleteFlag = false;
+        int numRowsDeleted = 0;
+        while(it != rows.end())
+        {
+            if(*it == parsedQuery.deleteValuesList)
+            {
+                it = rows.erase(it);
+                deleteFlag = true;
+                numRowsDeleted++;
+            }
+            else it++;
+        }
+        if(deleteFlag)
+        {
+            Page page = bufferManager.getPage(table->tableName,curPage);
+            Page newPage(table->tableName,curPage,rows,rows.size(),page.nextPointer);
+            newPage.writePage();
+            bufferManager.removeFromPool(table->tableName,curPage);
+            table->rowsPerBlockCount[curPage]=rows.size();
+            table->rowCount -= numRowsDeleted;
+        }
+    }
 }
