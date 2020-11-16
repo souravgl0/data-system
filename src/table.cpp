@@ -413,9 +413,10 @@ void Table::writeInLinkedPages(vector<int> row, int insertedPageIndex, int& next
         int curRowCount = cursor.page.rowCount;
         rows.push_back(row);
         curRowCount++;
-        int nextPagePointer = -1;
-        if(curRowCount==this->maxRowsPerBlock)
+        int nextPagePointer = cursor.page.nextPointer;
+        if(curRowCount==this->maxRowsPerBlock && nextPagePointer == -1)
         {
+            // Initialize a new page and link it to the current page
             nextPagePointer = nextPageIndex;
             Page page(this->tableName,nextPageIndex,vector<vector<int>>(),0,-1);
             page.writePage();
