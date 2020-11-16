@@ -58,6 +58,7 @@ public:
     void executeSelectQuery();
     set<int> getQuerySet(int columnIndex);
     void insertRowUsingIndex(vector<int> row);
+    void deleteRowUsingIndex(vector<int> row);
 
     /**
  * @brief Static function that takes a vector of valued and prints them out in a

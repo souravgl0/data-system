@@ -536,3 +536,45 @@ void Table::insertRowUsingIndex(vector<int> row)
     this->rowCount++;
     this->distinctValuesInIndexedColumn.insert(key);
 }
+
+void Table::deleteRowUsingIndex(vector<int> row)
+{
+    int columnIndex = this->getColumnIndex(this->indexedColumn);
+    int key = row[columnIndex];
+    int deletePageIndex;
+    if(indexingStrategy == HASH){
+        deletePageIndex = hashIndex->find(key);
+    }
+    if(deletePageIndex != -1)
+    {
+        Cursor cursor(this->tableName,deletePageIndex);
+        while(cursor.pageIndex != -1)
+        {
+            vector<vector<int>> rows = cursor.getWholePage();
+            auto it = rows.begin();
+            bool deleteFlag = false;
+            int numRowsDeleted = 0;
+            while(it != rows.end())
+            {
+                if(*it == parsedQuery.deleteValuesList)
+                {
+                    it = rows.erase(it);
+                    deleteFlag = true;
+                    numRowsDeleted++;
+                }
+                else it++;
+            }
+            if(deleteFlag)
+            {
+                Page page = bufferManager.getPage(this->tableName,cursor.pageIndex);
+                Page newPage(this->tableName,cursor.pageIndex,rows,rows.size(),page.nextPointer);
+                newPage.writePage();
+                bufferManager.removeFromPool(this->tableName,cursor.pageIndex);
+                this->rowsPerBlockCount[cursor.pageIndex]=rows.size();
+                this->rowCount -= numRowsDeleted;
+            }
+
+            cursor.nextLinkedPage();
+        }
+    }
+}

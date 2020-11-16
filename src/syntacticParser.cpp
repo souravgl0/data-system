@@ -33,6 +33,8 @@ bool syntacticParse()
         return syntacticParseINSERT();
     else if(possibleQueryType == "BULK_INSERT")
 	return syntacticParseINSERT();
+    else if(possibleQueryType == "DELETE")
+        return syntacticParseDELETE();
     else
     {
         string resultantRelationName = possibleQueryType;
@@ -117,6 +119,9 @@ void ParsedQuery::clear()
     this->insertTableName = "";
     this->insertedTableName = "";
     this->insertValuesList.clear();
+
+    this->deleteTableName = "";
+    this->deleteValuesList.clear();
 
     this->sortingStrategy = NO_SORT_CLAUSE;
     this->sortResultRelationName = "";
