@@ -29,6 +29,8 @@ bool syntacticParse()
         return syntacticParseEXPORT();
     else if(possibleQueryType == "SOURCE")
         return syntacticParseSOURCE();
+    else if(possibleQueryType == "INSERT")
+        return syntacticParseINSERT();
     else
     {
         string resultantRelationName = possibleQueryType;
@@ -109,6 +111,9 @@ void ParsedQuery::clear()
     this->selectionFirstColumnName = "";
     this->selectionSecondColumnName = "";
     this->selectionIntLiteral = 0;
+
+    this->insertTableName = "";
+    this->insertValuesList.clear();
 
     this->sortingStrategy = NO_SORT_CLAUSE;
     this->sortResultRelationName = "";

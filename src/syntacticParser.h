@@ -21,7 +21,8 @@ enum QueryType
     SELECTION,
     SORT,
     SOURCE,
-    UNDETERMINED
+    UNDETERMINED,
+    INSERT
 };
 
 enum BinaryOperator
@@ -97,6 +98,9 @@ public:
     string selectionSecondColumnName = "";
     int selectionIntLiteral = 0;
 
+    string insertTableName = "";
+    vector<int> insertValuesList;
+
     SortingStrategy sortingStrategy = NO_SORT_CLAUSE;
     string sortResultRelationName = "";
     string sortColumnName = "";
@@ -124,6 +128,7 @@ bool syntacticParseRENAME();
 bool syntacticParseSELECTION();
 bool syntacticParseSORT();
 bool syntacticParseSOURCE();
+bool syntacticParseINSERT();
 
 bool isFileExists(string tableName);
 bool isQueryFile(string fileName);
