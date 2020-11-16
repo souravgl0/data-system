@@ -22,7 +22,8 @@ enum QueryType
     SORT,
     SOURCE,
     UNDETERMINED,
-    INSERT
+    INSERT,
+    DELETE
 };
 
 enum BinaryOperator
@@ -101,6 +102,9 @@ public:
     string insertTableName = "";
     vector<int> insertValuesList;
 
+    string deleteTableName = "";
+    vector<int> deleteValuesList;
+
     SortingStrategy sortingStrategy = NO_SORT_CLAUSE;
     string sortResultRelationName = "";
     string sortColumnName = "";
@@ -129,6 +133,7 @@ bool syntacticParseSELECTION();
 bool syntacticParseSORT();
 bool syntacticParseSOURCE();
 bool syntacticParseINSERT();
+bool syntacticParseDELETE();
 
 bool isFileExists(string tableName);
 bool isQueryFile(string fileName);
