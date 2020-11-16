@@ -519,3 +519,8 @@ set<int> Table::getQuerySet(int columnIndex)
         return res;
     }
 }
+
+void Table::insertRowUsingIndex(vector<int> row)
+{
+    
+}

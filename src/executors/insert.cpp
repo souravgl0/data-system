@@ -56,5 +56,32 @@ bool semanticParseINSERT()
 void executeINSERT()
 {
     logger.log("executeINSERT");
+    Table* table = tableCatalogue.getTable(parsedQuery.insertTableName);
+    if(table->indexed)
+    {
+        table->insertRowUsingIndex(parsedQuery.insertValuesList);
+        return;
+    }
+    Page page = bufferManager.getPage(table->tableName,table->blockCount-1);
+    if(page.rowCount < table->maxRowsPerBlock)
+    {
+        Cursor cursor(table->tableName,table->blockCount-1);
+        vector<vector<int>> rows = cursor.getWholePage();
+        rows.push_back(parsedQuery.insertValuesList);
 
+        Page pageNew(table->tableName,cursor.pageIndex,rows,page.rowCount + 1,page.nextPointer);
+        pageNew.writePage();
+        bufferManager.removeFromPool(table->tableName,cursor.pageIndex);
+        table->rowsPerBlockCount[cursor.pageIndex]=page.rowCount + 1;
+        table->rowCount++;
+    }
+    else
+    {
+        vector<vector<int>> rows = {parsedQuery.insertValuesList};
+        Page pageNew(table->tableName,table->blockCount , rows ,1,-1);
+        pageNew.writePage();
+        table->rowsPerBlockCount.push_back(1);
+        table->rowCount++;
+        table->blockCount++;
+    }
 }
