@@ -7,7 +7,7 @@
 bool syntacticParseINDEX()
 {
     logger.log("syntacticParseINDEX");
-    if (tokenizedQuery.size() != 7 || tokenizedQuery[1] != "ON" || tokenizedQuery[3] != "FROM" || tokenizedQuery[5] != "USING")
+    if (tokenizedQuery.size() != 9 || tokenizedQuery[1] != "ON" || tokenizedQuery[3] != "FROM" || tokenizedQuery[5] != "USING")
     {
         cout << "SYNTAX ERROR" << endl;
         return false;
@@ -17,9 +17,28 @@ bool syntacticParseINDEX()
     parsedQuery.indexRelationName = tokenizedQuery[4];
     string indexingStrategy = tokenizedQuery[6];
     if (indexingStrategy == "BTREE")
+    {
         parsedQuery.indexingStrategy = BTREE;
+        string fanouts = tokenizedQuery[8];
+        regex numeric("[-]?[0-9]+");
+        if (!regex_match(fanouts, numeric)){
+            cout << "SYNTAX ERROR" << endl;
+            return false;
+        }
+        parsedQuery.btreeFanout = stoi(fanouts);
+
+    }
     else if (indexingStrategy == "HASH")
+    {
         parsedQuery.indexingStrategy = HASH;
+        string buckets = tokenizedQuery[8];
+        regex numeric("[-]?[0-9]+");
+        if (!regex_match(buckets, numeric)){
+            cout << "SYNTAX ERROR" << endl;
+            return false;
+        }
+        parsedQuery.hashBuckets = stoi(buckets);
+    }
     else if (indexingStrategy == "NOTHING")
         parsedQuery.indexingStrategy = NOTHING;
     else

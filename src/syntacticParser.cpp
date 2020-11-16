@@ -88,6 +88,8 @@ void ParsedQuery::clear()
     this->indexingStrategy = NOTHING;
     this->indexColumnName = "";
     this->indexRelationName = "";
+    this->btreeFanout = 0;
+    this->hashBuckets = 0;
 
     this->joinBinaryOperator = NO_BINOP_CLAUSE;
     this->joinResultRelationName = "";

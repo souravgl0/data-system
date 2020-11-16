@@ -72,6 +72,8 @@ public:
     IndexingStrategy indexingStrategy = NOTHING;
     string indexColumnName = "";
     string indexRelationName = "";
+    int btreeFanout = 0;
+    int hashBuckets = 0;
 
     BinaryOperator joinBinaryOperator = NO_BINOP_CLAUSE;
     string joinResultRelationName = "";
